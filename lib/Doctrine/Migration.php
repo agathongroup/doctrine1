@@ -288,6 +288,46 @@ class Doctrine_Migration
     }
 
     /**
+     * Performs a down migration on the specified version.
+     *
+     * @param mixed $to Optional, defaults to null.
+     *
+     * @param  integer $to       Version to migrate to
+     * @return integer $to       Version number migrated to
+     */
+    public function migrateDown($to = null)
+    {
+        $query = "SELECT timestamp_value FROM ". $this->_migrationTableName . " ORDER BY timestamp_value ASC ";
+        $pastMigrations = $this->_connection->fetchColumn($query);
+        if (!in_array($to, $pastMigrations)) {
+            throw new Doctrine_Migration_Exception("Migration $to has not already been run.");
+        }
+        $this->_doMigrateStep('down', $to);
+        $this->removeMigration($to);
+        return $to;
+    }
+
+    /**
+     * Performs a up migration on the specified version.
+     *
+     * @param mixed $to Optional, defaults to null.
+     *
+     * @param  integer $to       Version to migrate to
+     * @return integer $to       Version number migrated to
+     */
+    public function migrateUp($to = null)
+    {
+        $query = "SELECT timestamp_value FROM ". $this->_migrationTableName . " ORDER BY timestamp_value ASC ";
+        $pastMigrations = $this->_connection->fetchColumn($query);
+        if (in_array($to, $pastMigrations)) {
+            throw new Doctrine_Migration_Exception("Migration $to has already been run.");
+        }
+        $this->_doMigrateStep('up', $to);
+        $this->addMigration($to);
+        return $to;
+    }
+
+    /**
      * Perform a migration process by specifying the migration number/version to
      * migrate to. It will automatically know whether you are migrating up or down
      * based on the current version of the database.
