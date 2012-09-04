@@ -30,6 +30,15 @@ class Doctrine_Task_UpgradeTimestampMigrations extends Doctrine_Task
                 )
             )
         ));
+        $conn->export->createIndex($migration->getTableName(), 'timestamp_value', array(
+             'type' => 'unique',
+             'fields' =>
+             array(
+              'timestamp_value' =>
+              array(
+              ),
+             ),
+        ));
 
         // Seed table with migrations that should have been run based on current version number
         $i = 0;
