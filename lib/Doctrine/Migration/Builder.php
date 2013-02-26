@@ -497,20 +497,20 @@ END;
                 throw new Doctrine_Migration_Exception('You must specify the path to your migrations.');
             }
 
-            $next = time() + $this->migration->getNextMigrationClassVersion();
+            $next = $this->migration->getNextMigrationClassVersion();
             $fileName = $next . '_' . Doctrine_Inflector::tableize($className) . $this->suffix;
 
             $class = $this->buildMigrationClass($className, $fileName, $options, $up, $down);
 
             $path = $this->getMigrationsPath() . DIRECTORY_SEPARATOR . $fileName;
             if (class_exists($className) || file_exists($path)) {
-                $this->migration->loadMigrationClass($className);
+                $this->migration->loadMigrationClass($next, $className);
                 return false;
             }
 
             file_put_contents($path, $class);
             require_once($path);
-            $this->migration->loadMigrationClass($className);
+            $this->migration->loadMigrationClass($next, $className);
 
             return true;
         }
